@@ -64,8 +64,10 @@ class CustomStreamListener(tweepy.StreamListener):
                     tweet = status.text
                 no_emoji_str = emoji_pattern.sub(r'', tweet)
                 # remove url
-                url_pattern = re.compile(r'(http[s]://[\w./]+)*')  
-                tweet =  str(self.count)+";"+url_pattern.sub(r'', no_emoji_str).replace('\n',' ').strip()+";crash"
+                url_pattern = re.compile(r'(http[s]://[\w./]+)*') 
+                rt_pattern = re.compile('RT @\w+: ')
+                r_pattern = re.compile('@\w+ ')
+                tweet =  str(self.count)+";"+r_pattern.sub(r'', rt_pattern.sub(r'', url_pattern.sub(r'', no_emoji_str))).replace('\n',' ').strip()+";NO"
                 prod = connect_kafka_producer();
 
                 print(json.dumps(tweet))
