@@ -12,11 +12,11 @@ from pyspark.ml import Pipeline
 
 
 def main(dict):
+
     filename = dict['filename']
     savedmodelName = dict['modelname']
 
     def myFunc(input):
-        # print(input)
         lines = input.split("\n")
         for line in lines:
             parts=line.split(";")
@@ -24,20 +24,12 @@ def main(dict):
             Sentence = parts[1]
         return (Category,Sentence)
 
-
-    # sc = SparkContext("local[2]", "ML")
-    # spark = SparkSession.builder.master("local[2]").appName("ML").getOrCreate()
     file = sc.textFile("4CVTweets/"+filename)
     lines= file.map(myFunc)
     sentenceDataFrame = spark.createDataFrame(lines,["label","sentence"])
     (trainingData, testData) = sentenceDataFrame.randomSplit([0.7, 0.3])
 
     # start building the pineline
-
-    # labelencoder = spark.createDataFrame(
-    #             [(0, "NO"), (1, "crash"), (2, "fire"), (3, "shooting")],
-    #             ["id", "label"])
-
     # No: 0,Crash:1,Fire:2,Shooting:3
 
     indexer = StringIndexer(inputCol="label", outputCol="categoryIndex")
@@ -53,34 +45,27 @@ def main(dict):
     pipeline = Pipeline(stages=[indexer,tokenizer,remover, hashingTF, idf, rf])
     model = pipeline.fit(trainingData)
 
-    # token = pipeline.getStages()[0]
-    # remove = pipeline.getStages()[1]
-    # hash = pipeline.getStages()[2]
-    # myidf = pipeline.getStages()[3]
-    # res = token.transform(trainingData)
-    # res2 = remove.transform(res)
-    # res3 = hash.transform(res2)
-    # idfmodel = myidf.fit(res3)
-    # res4 = idfmodel.transform(res3)
-    # print(res4.show(100,False))
 
-    # #
     # Start to count accuracy to evaluate the model using just the offline model
 
     predictionsForTraining = model.transform(trainingData)
+    # print(predictionsForTraining.show(100,False))
     predictionsForTraining.select("label","categoryIndex","prediction").show(100,False)
 
 
 
     evaluator1 = MulticlassClassificationEvaluator(labelCol="categoryIndex", predictionCol="prediction", metricName="accuracy")
     accuracy = evaluator1.evaluate(predictionsForTraining)
+    print("Test Accuracy = %g " % (accuracy))
     print("Train Error = %g " % (1.0 - accuracy))
+
 
 
     predictions = model.transform(testData)
     evaluator2 = MulticlassClassificationEvaluator(labelCol="categoryIndex", predictionCol="prediction", metricName="accuracy")
 
     accuracy = evaluator2.evaluate(predictions)
+    print("Test Accuracy = %g " % (accuracy))
     print("Test Error = %g " % (1.0 - accuracy))
 
     savePath = "/tmp/pipeline/"+savedmodelName
@@ -91,7 +76,7 @@ def main(dict):
 if __name__=='__main__':
     sc = SparkContext("local[2]", "ML")
     spark = SparkSession.builder.master("local[2]").appName("ML").getOrCreate()
-    mydict = {'Boston':{'filename':"Boston4C.csv",'modelname':'boston'},
+    mydict = {'Boston':{'filename':"Boston4C.csv",'modelname':'Boston'},
               'Brisbane': {'filename': "Brisbane4C.csv", 'modelname': 'Brisbane'},
               'Chicago':{'filename': "Chicago4C.csv", 'modelname': 'Chicago'},
               'Dublin': {'filename': "Dublin4C.csv", 'modelname': 'Dublin'},

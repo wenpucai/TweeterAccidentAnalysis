@@ -24,26 +24,29 @@ def parse(str2):
         res['news'].append(d)
     return res;
 
+
 def result(x):
+    if not x.isEmpty():
+        sl = x.map(lambda line: (line[0],line[1].split(";"))).map(lambda line:(line[0],line[1][-1],line[1][1]))
+        sentenceDataFrame = spark.createDataFrame(sl, ["topic","label", "sentence"])
+        collections = sentenceDataFrame.collect()
+        topic = collections[0][0]
+        # Get the topic of this RDD(Assume the same RDD has the same Topic)
 
-    sl = x.map(lambda line: (line[0],line[1].split(";"))).map(lambda line:(line[0],line[1][-1],line[1][1]))
-    # get the Topic (location), Incident type, and Sentence
+        print(topic)
+        model = PipelineModel.load("/tmp/pipeline/" + topic)
+        # sentenceDataFrame.show(10,False)
+        predictionsForTraining = model.transform(sentenceDataFrame)
 
-    sentenceDataFrame = spark.createDataFrame(sl, ["topic","label", "sentence"])
-    collections = sentenceDataFrame.collect()
-    topic = collections[0][0]
-    # Get the topic of this RDD(Assume the same RDD has the same Topic)
+        # predictionsForTraining.select("topic","label", "categoryIndex", "prediction").show(100, False)
+        predictionsForTraining.select("topic", "prediction").show(100, False)
 
+        evaluator1 = MulticlassClassificationEvaluator(labelCol="categoryIndex", predictionCol="prediction",
+                                                       metricName="accuracy")
+        accuracy = evaluator1.evaluate(predictionsForTraining)
+        print("Train Error = %g " % (1.0 - accuracy))
 
-    model = PipelineModel.load("/tmp/pipeline/" + topic)
-    predictionsForTraining = model.transform(sentenceDataFrame)
-    predictionsForTraining.select("topic","label", "categoryIndex", "prediction").show(100, False)
-
-    evaluator1 = MulticlassClassificationEvaluator(labelCol="categoryIndex", predictionCol="prediction",
-                                                   metricName="accuracy")
-    accuracy = evaluator1.evaluate(predictionsForTraining)
-    print("Train Error = %g " % (1.0 - accuracy))
-
+    return
 
 
 
@@ -52,11 +55,10 @@ es_write_conf = {"es.resource": "tsd/mem", "es.input.json": "true"}
 
 
 ssc = StreamingContext(sc, 5)
-
-
 lines = KafkaUtils.createDirectStream(ssc,['Boston4C','Brisbane4C','Chicago4C','Dublin4C','London4C','Memphis4C','NYC4C','SanFrancisco4Classes','Seattle4Classes','Sydney4C'],{"bootstrap.servers":"localhost:9092"})
 
 lines.foreachRDD(result)
+
 # For each RDD, call result
 
 lines.pprint()
