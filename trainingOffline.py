@@ -94,7 +94,7 @@ def main(dict):
     print("Test Accuracy = %g " % (accuracy))
     print("Test Error = %g " % (1.0 - accuracy))
 
-    savePath = "/tmp/pipeline/"+savedmodelName
+    savePath = "tmp/pipeline/"+savedmodelName
     model.write().overwrite().save(savePath)
     print("model for Location",savedmodelName,"save successfully.")
 #
