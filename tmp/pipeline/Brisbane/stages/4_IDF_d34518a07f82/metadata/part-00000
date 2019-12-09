@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.IDFModel","timestamp":1575867000638,"sparkVersion":"2.4.4","uid":"IDF_d34518a07f82","paramMap":{"inputCol":"rawFeatures","outputCol":"features","minDocFreq":5},"defaultParamMap":{"outputCol":"IDF_d34518a07f82__output","minDocFreq":0}}
