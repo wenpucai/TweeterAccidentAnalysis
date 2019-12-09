@@ -10,6 +10,29 @@ python3 trainingOffline.py (Remember to set the dataset as Directory "4CVTweets"
 run Kafka_Producer.py:
 python3 Kafka_Producer.py (Remember to set the dataset as Directory "4CVTweets")
 
+run Tweepy Producer.py:
+python3 producer.py NYC accident  (to producer NYC data)
+or
+python3 producer.py Boston accident (to producer Boston data)
+or
+python3 producer.py Boston accident
+or
+python3 producer.py Brisbane accident
+python3 producer.py Chicago accident
+python3 producer.py Dublin accident
+python3 producer.py London accident
+python3 producer.py Memphis accident
+python3 producer.py SF accident
+python3 producer.py Seattle accident
+python3 producer.py Sydney accident
+
+
+run elasticsearch:
+/usr/local/Cellar/elasticsearch-full/7.4.2/bin/elasticsearch
+
+run kibana:
+/usr/local/Cellar/kibana-full/7.4.2/bin/kibana
+
 run spark_streaming.py:
 
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.4 spark_streaming.py(path of spark_streaming.py) >> outputfile
