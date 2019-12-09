@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from kafka import KafkaProducer
 from time import sleep
 import json, sys
-import requests
-import time
 import tweepy
 import sys
 import apiKeys
