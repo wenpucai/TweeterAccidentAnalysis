@@ -1,0 +1,7 @@
+A project helps to classify the Twitter classification.
+
+Training:
+We train our twitter models by using existing Twitter with the tag (classification)
+Testing:
+This is a project that first use the Twitter API to get the twitters first.
+Then after we retrieved the twitter, we use our trained model to predict the classification as accident, shooting, fire, no accident four classification.
